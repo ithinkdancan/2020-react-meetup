@@ -18,7 +18,6 @@ Senior Front-End Engineer @ H-E-B Digital
 - SSR at H-E-B Digital
 - How to SSR your app
 
-
 ---
 
 # Why Sever Side Render?
@@ -51,14 +50,61 @@ Decoupling our Java Monolith
 - API for SSR React components
 - Shared redux context
 - Reusable components
-- Decoupled from our Java Application
+- UI Decoupled from our Java Application
+
+---
+
+<CodeSurfer>
+
+```json title="Requesting Components"
+
+{
+	"components": {
+		"Header": {
+			"component": "Header",
+			"data": {
+				"search": {
+					"searchTerm": "apples"
+				},
+			}
+		},
+		"Footer": {
+			"component": "Footer"
+		}
+	}
+}
+
+```
+
+</CodeSurfer>
+
+---
+
+<CodeSurfer>
+
+```json title="Service Response"
+
+{
+  "preload": "<link rel=\"preload\" href=\"Header.5438fe62fe34bb6f2a65.js\" as=\"script\" />",
+  "styles": "<style data-styled data-styled-version=\"5.0.0\">....</style>",
+  "components": {
+    "Header": "<div data-heb-key=\"Header\">...</div>"
+  },
+  "state": "<script type=\"text/javascript\">window.__PRELOADED_STATE__ = {...}; </script>",
+  "scripts": "<script type=\"text/javascript\" src=\"Header.5438fe62fe34bb6f2a65.js\" defer=\"defer\">"
+}
+
+```
+
+</CodeSurfer>
+
 
 ---
 
 # Single Page Application
 - Full Routes with Code Splitting
 - Same components as rendering service
-- Decoupled from our Java Application
+- Fully Decoupled from our Java Application
 
 ---
 
@@ -69,7 +115,21 @@ Decoupling our Java Monolith
 <CodeSurfer>
 
 ```js title="React Makes it Easy"
-  const App = TODO
+import { Provider } from "react-redux";
+import { ThemeProvider } from "styled-components";
+import { ApolloProvider } from "@apollo/react-hooks";
+
+export function WrappedApp({ apolloClient, store }) {
+  return (
+    <ThemeProvider>
+        <ApolloProvider client={apolloClient}>
+            <Provider store={store}>
+                <App />
+            </Provider>
+        </ApolloProvider>
+    </ThemeProvider>
+  );
+}
 ```
 
 </CodeSurfer>
@@ -220,10 +280,10 @@ Decoupling our Java Monolith
 
 ```js title="Data Fetching with Apollo Client"
   import { createStore } from 'store/create';
-  import { createClient } from 'client/create';
   import { ServerStyleSheet } from "styled-components";
   import flushChunks from 'webpack-flush-chunks';
   import { clearChunks, flushChunkNames } from 'react-universal-component/server';
+  import { createClient } from 'client/create';
 
   const client = createClient();
   const store = createStore();
@@ -256,8 +316,8 @@ Decoupling our Java Monolith
       <body>
         <div id="root">${application}</div>
         <script type="text/javascript">
-          window.__PRELOADED_STATE__ = ${JSON.stringify(state).replace(/</g, '\\u003c')};
           window.__APOLLO_STATE__ = ${JSON.stringify(apolloState).replace(/</g, '\\u003c')};
+          window.__PRELOADED_STATE__ = ${JSON.stringify(state).replace(/</g, '\\u003c')};
         </script>
         ${js}
       </body>
@@ -269,140 +329,5 @@ Decoupling our Java Monolith
 
 ---
 
-<CodeSurfer>
+# DEMO
 
-```js title="This is a title" subtitle="and this a subtitle"
-function lorems(ipsum, dolor = 1) {
-  const sit = ipsum == null ? 0 : ipsum.sit;
-  dolor = sit - amet(dolor);
-  return sit
-    ? consectetur(ipsum, 0, dolor < 0 ? 0 : dolor)
-    : [];
-}
-
-function incididunt(ipsum, ut = 1) {
-  ut = labore.et(amet(ut), 0);
-  const sit = ipsum == null ? 0 : ipsum.sit;
-
-  if (!sit || ut < 1) {
-    return [];
-  }
-
-  let dolore = 0;
-  let magna = 0;
-  const aliqua = new eiusmod(labore.ut(sit / ut));
-
-  while (dolore < sit) {
-    aliqua[magna++] = consectetur(
-      ipsum,
-      dolore,
-      (dolore += ut)
-    );
-  }
-
-  return aliqua;
-}
-```
-
-```js
-function lorem(ipsum, dolor = 1) {
-  const sit = ipsum == null ? 0 : ipsum.sit;
-  dolor = sit - amet(dolor);
-  return sit
-    ? consectetur(ipsum, 0, dolor < 0 ? 0 : dolor)
-    : [];
-}
-
-function adipiscing(...elit) {
-  if (!elit.sit) {
-    return [];
-  }
-
-  const sed = elit[0];
-  return eiusmod.tempor(sed) ? sed : [sed];
-}
-
-function incididunt(ipsum, ut = 1) {
-  ut = labore.et(amet(ut), 0);
-  const sit = ipsum == null ? 0 : ipsum.sit;
-
-  if (!sit || ut < 1) {
-    return [];
-  }
-
-  let dolore = 0;
-  let magna = 0;
-  const aliqua = new eiusmod(labore.ut(sit / ut));
-
-  while (dolore < sit) {
-    aliqua[magna++] = consectetur(
-      ipsum,
-      dolore,
-      (dolore += ut)
-    );
-  }
-
-  return aliqua;
-}
-```
-
-```diff 1[10:14],2[15:19],3[22:27],10:12
-
-```
-
-</CodeSurfer>
-
----
-
-<CodeSurferColumns themes={[vsDark, github]}>
-
-<Step>
-
-```js
-const magna = aliqua => aliqua.ut((enim, ad) => enim, 0);
-```
-
-```js
-const minim = (ad, enim) => dolore.magna(ad / enim);
-```
-
-</Step>
-
-<Step>
-
-```js
-const lorem = (ipsum, dolor, sit) => {
-  const amet = dolor - ipsum;
-  return consectetur.adipiscing(
-    {
-      elit: sed.eiusmod(sit - dolor) / amet + 2,
-    },
-    (tempor, incididunt) => ipsum + amet * incididunt
-  );
-};
-
-const magna = aliqua => aliqua.ut((enim, ad) => enim, 0);
-```
-
-```js
-const minim = (ad, enim) => dolore.magna(ad / enim);
-
-const sed = (eiusmod, tempor, incididunt) => {
-  const ut = tempor - eiusmod;
-  return labore.et(
-    {
-      amet: dolore.magna(incididunt - tempor) / ut + 2,
-    },
-    (aliqua, elit) => eiusmod + ut * elit
-  );
-};
-```
-
-</Step>
-
-</CodeSurferColumns>
-
----
-
-docs:  
-[codesurfer.pomb.us](https://codesurfer.pomb.us)
