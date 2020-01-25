@@ -7,16 +7,272 @@ import { github, vsDark } from "@code-surfer/themes";
 
 export const theme = vsDark;
 
-# Hello 👋
+# Hello 👋 I'm Daniel
 
-You are using [MDX Deck](https://github.com/jxnblk/mdx-deck) and [Code Surfer](https://codesurfer.pomb.us)
+Senior Front-End Engineer @ H-E-B Digital
+
+---
+
+# Server Side Rendering
+- Why SSR?
+- SSR at H-E-B Digital
+- How to SSR your app
+
+
+---
+
+# Why Sever Side Render?
+
+---
+
+# Progressive Enhancement
+- Resolve your data internally   
+- Ship only what the client needs
+- Defer javascript parsing after rendering
+
+---
+
+# Tools for SSR
+- Webpack Code Splitting
+- Univeral Components
+- Flush Chunks
+- Styled Components
+- Helmet
+
+---
+
+# SSR at H-E-B Digital 
+
+Decoupling our Java Monolith
+
+---
+
+# Component Rendering Service
+- API for SSR React components
+- Shared redux context
+- Reusable components
+- Decoupled from our Java Application
+
+---
+
+# Single Page Application
+- Full Routes with Code Splitting
+- Same components as rendering service
+- Decoupled from our Java Application
+
+---
+
+# How It's Done
+
+---
+
+<CodeSurfer>
+
+```js title="React Makes it Easy"
+  const App = TODO
+```
+
+</CodeSurfer>
+
+---
+
+<CodeSurfer>
+
+```js title="React Makes it Easy"
+  const application = ReactDOM.renderToString(
+    <App />
+  );
+```
+
+```js title="Add Redux"
+  import { createStore } from 'store/create';
+
+  const store = createStore();
+
+  const application = ReactDOM.renderToString(
+    <App store={store} />
+  );
+
+  const state = store.getState();
+
+```
+
+```js title="Collect Styles"
+  import { createStore } from 'store/create';
+  import { ServerStyleSheet } from "styled-components";
+  
+  const store = createStore();
+  const sheet = new ServerStyleSheet();
+
+  const application = ReactDOM.renderToString(
+    sheet.collectStyles(
+      <App store={store} />
+    )
+  );
+
+  const state = store.getState();
+  const styles = sheet.getStyleTags();
+
+```
+
+```js title="Collect Javascript"
+  import { createStore } from 'store/create';
+  import { ServerStyleSheet } from "styled-components";
+  import flushChunks from 'webpack-flush-chunks';
+  import { flushChunkNames } from 'react-universal-component/server';
+
+  const store = createStore();
+  const sheet = new ServerStyleSheet();
+
+  const application = ReactDOM.renderToString(
+    sheet.collectStyles(
+      <App store={store} />
+    )
+  );
+
+  const state = store.getState();
+  const styles = sheet.getStyleTags();
+
+  const chunkNames = flushChunkNames();
+  const { js } = flushChunks(clientStats, { chunkNames });
+
+```
+
+```js title="Build your document"
+  import { createStore } from 'store/create';
+  import { ServerStyleSheet } from "styled-components";
+  import flushChunks from 'webpack-flush-chunks';
+  import { flushChunkNames } from 'react-universal-component/server';
+
+  const store = createStore();
+  const sheet = new ServerStyleSheet();
+
+  const application = ReactDOM.renderToString(
+    sheet.collectStyles(
+      <App store={store} />
+    )
+  );
+
+  const state = store.getState();
+  const styles = sheet.getStyleTags();
+
+  const chunkNames = flushChunkNames();
+  const { js } = flushChunks(clientStats, { chunkNames });
+
+  return `<!doctype html>
+    <html>
+      <head>
+        <title>My Application</title>
+        ${styles}
+      </head>
+      <body>
+        <div id="root">${application}</div>
+        <script type="text/javascript">
+          window.__PRELOADED_STATE__ = ${JSON.stringify(state).replace(/</g, '\\u003c')};
+        </script>
+        ${js}
+      </body>
+    </html>`;
+
+```
+
+```js title="MEMORY LEAKS!!!!" 4[11:23],7,21:22
+  import { createStore } from 'store/create';
+  import { ServerStyleSheet } from "styled-components";
+  import flushChunks from 'webpack-flush-chunks';
+  import { clearChunks, flushChunkNames } from 'react-universal-component/server';
+
+  const store = createStore();
+  const sheet = new ServerStyleSheet();
+
+  const application = ReactDOM.renderToString(
+    sheet.collectStyles(
+      <App store={store} />
+    )
+  );
+
+  const state = store.getState();
+  const styles = sheet.getStyleTags();
+
+  const chunkNames = flushChunkNames();
+  const { js } = flushChunks(clientStats, { chunkNames });
+
+  sheet.seal();
+  clearChunks();
+
+  return `<!doctype html>
+    <html>
+      <head>
+        <title>My Application</title>
+        ${styles}
+      </head>
+      <body>
+        <div id="root">${application}</div>
+        <script type="text/javascript">
+          window.__PRELOADED_STATE__ = ${JSON.stringify(state).replace(/</g, '\\u003c')};
+        </script>
+        ${js}
+      </body>
+    </html>`;
+
+```
+
+
+```js title="Data Fetching with Apollo Client"
+  import { createStore } from 'store/create';
+  import { createClient } from 'client/create';
+  import { ServerStyleSheet } from "styled-components";
+  import flushChunks from 'webpack-flush-chunks';
+  import { clearChunks, flushChunkNames } from 'react-universal-component/server';
+
+  const client = createClient();
+  const store = createStore();
+  const sheet = new ServerStyleSheet();
+
+  await getDataFromTree(App);
+
+  const application = ReactDOM.renderToString(
+    sheet.collectStyles(
+      <App store={store} apolloClient={client} />
+    )
+  );
+
+  const apolloState = client.extract();
+  const state = store.getState();
+  const styles = sheet.getStyleTags();
+
+  const chunkNames = flushChunkNames();
+  const { js } = flushChunks(clientStats, { chunkNames });
+
+  sheet.seal();
+  clearChunks();
+
+  return `<!doctype html>
+    <html>
+      <head>
+        <title>My Application</title>
+        ${styles}
+      </head>
+      <body>
+        <div id="root">${application}</div>
+        <script type="text/javascript">
+          window.__PRELOADED_STATE__ = ${JSON.stringify(state).replace(/</g, '\\u003c')};
+          window.__APOLLO_STATE__ = ${JSON.stringify(apolloState).replace(/</g, '\\u003c')};
+        </script>
+        ${js}
+      </body>
+    </html>`;
+
+```
+
+</CodeSurfer>
 
 ---
 
 <CodeSurfer>
 
 ```js title="This is a title" subtitle="and this a subtitle"
-function lorem(ipsum, dolor = 1) {
+function lorems(ipsum, dolor = 1) {
   const sit = ipsum == null ? 0 : ipsum.sit;
   dolor = sit - amet(dolor);
   return sit
