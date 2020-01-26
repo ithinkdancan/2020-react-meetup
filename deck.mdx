@@ -33,10 +33,10 @@ Senior Front-End Engineer @ H-E-B Digital
 
 # Tools for SSR
 - Webpack Code Splitting
-- Univeral Components
-- Flush Chunks
+- Univeral Component Libary
 - Styled Components
-- Helmet
+- React Router
+- React Helmet
 
 ---
 
@@ -48,9 +48,9 @@ Decoupling our Java Monolith
 
 # Component Rendering Service
 - API for SSR React components
-- Shared redux context
-- Reusable components
-- UI Decoupled from our Java Application
+- Critical CSS and JS
+- Shared Redux and Apollo context
+- Decouples UI from our Java Application
 
 ---
 
@@ -62,16 +62,17 @@ Decoupling our Java Monolith
 	"components": {
 		"Header": {
 			"component": "Header",
-			"data": {
-				"search": {
-					"searchTerm": "apples"
-				},
+			"props": {
+				"searchTerm": "apples"
 			}
 		},
 		"Footer": {
 			"component": "Footer"
 		}
-	}
+	},
+  "state": {
+    "cartItems": 5
+  }
 }
 
 ```
@@ -89,6 +90,7 @@ Decoupling our Java Monolith
   "styles": "<style data-styled data-styled-version=\"5.0.0\">....</style>",
   "components": {
     "Header": "<div data-heb-key=\"Header\">...</div>"
+    "Footer": "<div data-heb-key=\"Footer\">...</div>"
   },
   "state": "<script type=\"text/javascript\">window.__PRELOADED_STATE__ = {...}; </script>",
   "scripts": "<script type=\"text/javascript\" src=\"Header.5438fe62fe34bb6f2a65.js\" defer=\"defer\">"
@@ -102,9 +104,9 @@ Decoupling our Java Monolith
 ---
 
 # Single Page Application
-- Full Routes with Code Splitting
+- Full routes with code splitting
 - Same components as rendering service
-- Fully Decoupled from our Java Application
+- Fully decoupled from our Java Application
 
 ---
 
@@ -114,18 +116,18 @@ Decoupling our Java Monolith
 
 <CodeSurfer>
 
-```js title="React Makes it Easy"
-import { Provider } from "react-redux";
-import { ThemeProvider } from "styled-components";
+```js title="Example Application"
+import { Provider as ReduxProvider } from "react-redux";
 import { ApolloProvider } from "@apollo/react-hooks";
+import { ThemeProvider } from "styled-components";
 
-export function WrappedApp({ apolloClient, store }) {
+export function WrappedApp({ apolloClient, reduxStore }) {
   return (
     <ThemeProvider>
         <ApolloProvider client={apolloClient}>
-            <Provider store={store}>
-                <App />
-            </Provider>
+            <ReduxProvider store={reduxStore}>
+                <Routes />
+            </ReduxProvider>
         </ApolloProvider>
     </ThemeProvider>
   );
@@ -139,17 +141,20 @@ export function WrappedApp({ apolloClient, store }) {
 <CodeSurfer>
 
 ```js title="React Makes it Easy"
-  const application = ReactDOM.renderToString(
+  import { renderToString } from 'react-dom/server';
+
+  const application = renderToString(
     <App />
   );
 ```
 
 ```js title="Add Redux"
+  import { renderToString } from 'react-dom/server';
   import { createStore } from 'store/create';
 
   const store = createStore();
 
-  const application = ReactDOM.renderToString(
+  const application = renderToString(
     <App store={store} />
   );
 
@@ -158,13 +163,14 @@ export function WrappedApp({ apolloClient, store }) {
 ```
 
 ```js title="Collect Styles"
+  import { renderToString } from 'react-dom/server';
   import { createStore } from 'store/create';
   import { ServerStyleSheet } from "styled-components";
   
   const store = createStore();
   const sheet = new ServerStyleSheet();
 
-  const application = ReactDOM.renderToString(
+  const application = renderToString(
     sheet.collectStyles(
       <App store={store} />
     )
@@ -176,6 +182,7 @@ export function WrappedApp({ apolloClient, store }) {
 ```
 
 ```js title="Collect Javascript"
+  import { renderToString } from 'react-dom/server';
   import { createStore } from 'store/create';
   import { ServerStyleSheet } from "styled-components";
   import flushChunks from 'webpack-flush-chunks';
@@ -184,7 +191,7 @@ export function WrappedApp({ apolloClient, store }) {
   const store = createStore();
   const sheet = new ServerStyleSheet();
 
-  const application = ReactDOM.renderToString(
+  const application = renderToString(
     sheet.collectStyles(
       <App store={store} />
     )
@@ -199,6 +206,7 @@ export function WrappedApp({ apolloClient, store }) {
 ```
 
 ```js title="Build your document"
+  import { renderToString } from 'react-dom/server';
   import { createStore } from 'store/create';
   import { ServerStyleSheet } from "styled-components";
   import flushChunks from 'webpack-flush-chunks';
@@ -207,7 +215,7 @@ export function WrappedApp({ apolloClient, store }) {
   const store = createStore();
   const sheet = new ServerStyleSheet();
 
-  const application = ReactDOM.renderToString(
+  const application = renderToString(
     sheet.collectStyles(
       <App store={store} />
     )
@@ -236,7 +244,8 @@ export function WrappedApp({ apolloClient, store }) {
 
 ```
 
-```js title="MEMORY LEAKS!!!!" 4[11:23],7,21:22
+```js title="MEMORY LEAKS!!!!" 5[11:23],8,22:23
+  import { renderToString } from 'react-dom/server';
   import { createStore } from 'store/create';
   import { ServerStyleSheet } from "styled-components";
   import flushChunks from 'webpack-flush-chunks';
@@ -245,7 +254,7 @@ export function WrappedApp({ apolloClient, store }) {
   const store = createStore();
   const sheet = new ServerStyleSheet();
 
-  const application = ReactDOM.renderToString(
+  const application = renderToString(
     sheet.collectStyles(
       <App store={store} />
     )
@@ -279,6 +288,7 @@ export function WrappedApp({ apolloClient, store }) {
 
 
 ```js title="Data Fetching with Apollo Client"
+  import { renderToString } from 'react-dom/server';
   import { createStore } from 'store/create';
   import { ServerStyleSheet } from "styled-components";
   import flushChunks from 'webpack-flush-chunks';
@@ -289,12 +299,12 @@ export function WrappedApp({ apolloClient, store }) {
   const store = createStore();
   const sheet = new ServerStyleSheet();
 
-  await getDataFromTree(App);
+  const AppTree = <App store={store} apolloClient={client} />
 
-  const application = ReactDOM.renderToString(
-    sheet.collectStyles(
-      <App store={store} apolloClient={client} />
-    )
+  await getDataFromTree(AppTree);
+
+  const application = renderToString(
+    sheet.collectStyles(AppTree)
   );
 
   const apolloState = client.extract();
