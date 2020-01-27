@@ -313,6 +313,52 @@ export function WrappedApp({ apolloClient, reduxStore }) {
 ```
 
 
+```js title="Data Fetching with Apollo Client" 6:8,12:19
+  import { renderToString } from 'react-dom/server';
+  import { createStore } from 'store/create';
+  import { ServerStyleSheet } from "styled-components";
+  import flushChunks from 'webpack-flush-chunks';
+  import { clearChunks, flushChunkNames } from 'react-universal-component/server';
+  import { createClient } from 'client/create';
+
+  const client = createClient();
+  const store = createStore();
+  const sheet = new ServerStyleSheet();
+
+  const AppTree = <App store={store} apolloClient={client} />
+
+  await getDataFromTree(AppTree);
+
+  const application = renderToString(
+    sheet.collectStyles(AppTree)
+  );
+
+  const state = store.getState();
+  const styles = sheet.getStyleTags();
+
+  const chunkNames = flushChunkNames();
+  const { js } = flushChunks(clientStats, { chunkNames });
+
+  sheet.seal();
+  clearChunks();
+
+  return `<!doctype html>
+    <html>
+      <head>
+        <title>My Application</title>
+        ${styles}
+      </head>
+      <body>
+        <div id="root">${application}</div>
+        <script type="text/javascript">
+          window.__PRELOADED_STATE__ = ${JSON.stringify(state).replace(/</g, '\\u003c')};
+        </script>
+        ${js}
+      </body>
+    </html>`;
+
+```
+
 ```js title="Data Fetching with Apollo Client"
   import { renderToString } from 'react-dom/server';
   import { createStore } from 'store/create';
