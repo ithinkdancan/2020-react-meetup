@@ -3,9 +3,35 @@ import {
   CodeSurferColumns,
   Step,
 } from "code-surfer";
+import { condensed } from 'mdx-deck/themes'
 import { github, vsDark } from "@code-surfer/themes";
 
-export const theme = vsDark;
+
+export const themes = [
+  condensed, 
+  vsDark, 
+  { 
+    colors: {
+      text: '#FFF',
+      background: "#000"
+    },
+    styles: { 
+      CodeSurfer: { 
+        title: {
+          backgroundColor: "#000",
+          color: "#FFF"
+        },
+        code: {
+          backgroundColor: "#000"
+        },
+        pre: {
+          backgroundColor: "#000"
+        }
+      } 
+    } 
+  }
+]
+
 
 # Hello 👋 I'm Daniel
 
