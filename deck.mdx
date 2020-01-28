@@ -33,7 +33,7 @@ export const themes = [
 ]
 
 
-# Hello 👋 I'm Daniel
+# Howdy 👋 I'm Daniel
 
 Senior Front-End Engineer @ H-E-B Digital
 
@@ -60,8 +60,8 @@ Senior Front-End Engineer @ H-E-B Digital
 # Tools for SSR
 - Webpack Code Splitting
 - Univeral Component Library
-- Styled Components
 - React Router
+- Styled Components
 - React Helmet
 
 ---
@@ -74,8 +74,8 @@ Decoupling our Java Monolith
 
 # Component Rendering Service
 - API for SSR React components
-- Critical CSS and JS
-- Shared Redux and Apollo context
+- Returns markup, critical CSS and JS
+- Sets up a shared Redux and Apollo context
 - Decouples UI from our Java Application
 
 ---
@@ -113,7 +113,7 @@ Decoupling our Java Monolith
 
 {
   "preload": "<link rel=\"preload\" href=\"Header.5438fe62fe34bb6f2a65.js\" as=\"script\" />",
-  "styles": "<style data-styled data-styled-version=\"5.0.0\">....</style>",
+  "styles": "<style data-styled data-styled-version=\"5.0.0\">body {...}</style>",
   "components": {
     "Header": "<div data-heb-key=\"Header\">...</div>"
     "Footer": "<div data-heb-key=\"Footer\">...</div>"
@@ -129,8 +129,8 @@ Decoupling our Java Monolith
 
 ---
 
-# Single Page Application
-- Full routes with code splitting
+# React Single Page Application
+- Full page routes with code splitting
 - Same components as rendering service
 - Fully decoupled from our Java Application
 
